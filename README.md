@@ -67,12 +67,3 @@ log.error("API failed");
 이를 통해 로그만 보고도 장애 공급사 즉시 식별 \
 재현 없이 운영 대응 가능 \
 모니터링 시스템 연동에 유리한 구조
-
-### 기술 스택
-
-- Java 25
-- Spring Boot
-- Spring Data JPA
-- H2 (local test)
-- Lombok
-- JUnit 5
