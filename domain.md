@@ -52,7 +52,7 @@ Supplier가 정의한 숙소의 고유 식별자이다.
 본 도메인에서 반드시 지켜져야 하는 규칙은 다음과 같다.
 
 1. Accommodation은 내부 통합 숙소가 아닌, **외부 OTA 공급사 기준 숙소**이다.
-2. 하나의 Accommodation은 반드시 하나의 SupplierType에 속한다.
+2. 하나의 Accommodation은 반드시 하나 SupplierType에 속한다.
 3. 숙소의 유일성은 (SupplierType + ExternalId) 조합으로 판단한다.
 4. 동일한 숙소에 대한 연동 요청이 여러 번 수행되더라도 결과는 동일해야 한다. (멱등성 보장)
 5. 외부 공급사의 데이터는 항상 내부 데이터보다 우선하며, 재시도 시에는 업데이트로 처리한다.
@@ -119,3 +119,87 @@ Supplier가 정의한 숙소의 고유 식별자이다.
 * 실시간 재고 동기화
 
 본 도메인은 **숙소 메타데이터 연동**에만 책임을 가진다.
+
+---
+
+### 8. Domain Model
+**_Entity_**
+
+**_Attribute_**
+
+`Accommodation`: 내부 시스템에서 관리하는 숙소 정보
+- `id`: Long - 내부 pk
+- `name`: String - 숙소 이름
+- `latitude`, `longitude`: double - 좌표
+- `address`: String - 숙소 주소
+- `status`: AccommodationStatus (Enum) - 숙소 상태
+    - ACTIVE
+    - INACTIVE
+    - CLOSED
+- `updatedAt`: LocalDateTime - 수정일자
+
+`AccommodationMapping`: 외부 OTA 공급사 기준 숙소 식별자 매핑
+- `id`: Long - 내부 pk
+- `supplierType`: Enum - 외부 공급자 타입
+    - EXPEDIA
+    - BOOKING
+- `externalAccommodationId`: String - 외부 공급자 키
+- `accommodationId`: Long - Accommodation FK
+- `createdAt`: LocalDateTime - 생성일자
+
+**UNIQUE**(supplierType, externalAccommodationId)
+
+---
+
+### 9. Sync Flow
+
+#### 전체 적인 흐름
+1. 외부 공급사에서 숙소 정보 기준으로 정보를 제공
+2. 내 서비스는 외부 공급자의 데이터를 그대로 저장하지 않고, 내부 도메인 모델에 맞게 가공
+3. 동일한 외부 요청이 여러번 들어와도 결과는 항상 동일해야함
+
+#### 동기화 요청 시작
+- 특정 SupplierType에 대해 숙소 동기화를 시작한다.
+
+#### 외부 OTA API 호출
+- 외부 전용 DTO로만 받는다
+- 도메인에 직접 전달되면 안된다
+
+#### 외부 DTO -> 내부 도메인으로 가공
+- 불필요한 필드 제거 
+- 내부 규칙에 맞게 값 정규화
+- 외부 식별자를 명확하게 분리해야함
+- 외부 전용 DTO를 내부에 맞게 Mapper로 변환한다
+
+#### 멱등성 기준 조회
+- `SupplierType`과 `externalAccommodationId` 유니크 식별자를 통해 `AccommodationMapping`조회
+
+#### 분기
+
+- Mapping이 있는경우: 기존 Accommodation이 존재함을 의미
+    - 정책: 
+      - 숙소 정보를 Update
+      - 내부 표현만 최신 상태로 갱신
+      - 새로운 숙소를 생성하지 않는다.
+
+- Mapping이 존재하지 않는 경우: 
+  - 새로운 숙소로 판단
+    - 처리:
+      1. `Accommodation` 신규 생성
+      2. 생성 된 `Accommodation`과 외부 식별자를 연결하는 `AccommodationMapping`를 생성
+
+#### 저장 
+- `AccommodationMapping`에는 (`supplierType`, `externalAccommodationId`) 유니크 제약이 존재한다.
+- 동시성이나 재시도 상황
+  - 중복 Mapping 생성은 DB 레벨에서 차단 
+  - 애플리케이션은 이를 정상 시나리오로 처리
+
+#### 동기화 결과 판단
+- 다음 중 하나라도 실패하면 동기화 전체를 실패로 간주
+    - 외부 API 호출 실패 
+    - DTO 파싱 실패 
+    - 도메인 규칙 위반 
+    - 저장 실패
+
+일부 성공 / 일부 실패를 허용하지 않는다. \
+정상적인 흐름을 타지 않으면 성공으로 보지 않는다.
