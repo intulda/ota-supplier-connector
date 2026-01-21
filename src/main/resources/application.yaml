@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: ota-spplier-connector
+
+  h2:
+    console:
+      enabled: true
