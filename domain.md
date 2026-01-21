@@ -70,18 +70,33 @@ Supplier가 정의한 숙소의 고유 식별자이다.
 * Accommodation은 (SupplierType, ExternalId) 기준으로 식별된다.
 * 동일 키에 대한 중복 적재는 허용하지 않는다.
 * 재시도 시에도 데이터 정합성이 유지되어야 한다.
+* 상태 기반 멱등성 처리
+   * 기존 Mapping이 있으면 Update, 신규 Mapping 없으면 Insert 
+   * DB Unique Constraint는 최후 안전장치로 사용
 
 ---
 
-### 5. Observability Consideration
+### 5. Observability & Retry
 
 연동 도메인은 장애 발생 시 빠른 원인 파악이 중요하다.
 
 이를 위해 다음과 같은 관측 가능성을 고려한다.
 
-* 모든 연동 로그는 SupplierType을 기준으로 식별 가능해야 한다.
-* 실패 로그는 단계(Fetch, Parse, Persist 등)를 포함해야 한다.
-* 로그만으로도 어느 공급사에서 어떤 문제가 발생했는지 파악 가능해야 한다.
+```text
+[TRACE_ID=1][SUPPLIER=EXPEDIA][STEP=FETCH][RESULT=FAIL][REASON=TIMEOUT]
+[TRACE_ID=2][SUPPLIER=BOOKING][STEP=PERSIST][RESULT=SUCCESS]
+```
+
+#### 로그 설계
+- 모든 연동 요청은 requestId(traceId) 기준으로 추적. 
+- 단계별 로그 포함: Fetch, Parse, Persist 등. 
+- 로그만으로도 장애 공급사, 단계, 원인 식별 가능.
+
+#### 재시도 정책
+- 외부 API 호출 실패 시 최대 3회 재시도, 지수 백오프(Exponential Backoff) 적용. 
+- 재시도 후에도 실패 시 운영자가 재처리 가능하도록 상태 기록 및 알림. 
+- 재시도 과정에서도 멱등성 보장.
+- 동시성 상황에서는 동일 `AccommodationMapping` 생성 시도 시, `DB Constraint` 위반은 정상 시나리오로 처리하며, 애플리케이션 레벨에서는 충돌 로그를 남기고 기존 매핑을 반환한다.
 
 ---
 
@@ -191,7 +206,7 @@ Supplier가 정의한 숙소의 고유 식별자이다.
 #### 저장 
 - `AccommodationMapping`에는 (`supplierType`, `externalAccommodationId`) 유니크 제약이 존재한다.
 - 동시성이나 재시도 상황
-  - 중복 Mapping 생성은 DB 레벨에서 차단 
+  - 중복 Mapping 생성은 DB 레벨에서 차단
   - 애플리케이션은 이를 정상 시나리오로 처리
 
 #### 동기화 결과 판단
@@ -203,3 +218,23 @@ Supplier가 정의한 숙소의 고유 식별자이다.
 
 일부 성공 / 일부 실패를 허용하지 않는다. \
 정상적인 흐름을 타지 않으면 성공으로 보지 않는다.
+
+---
+
+### 10. Request State Machine
+
+| 상태          | 의미        | 재요청 시 동작       |
+|-------------|-----------|----------------|
+| REQUESTED   | 동기화 요청 수신 | 외부 API 호출      |
+| IN_PROGRESS | 외부 연동 중   | 중복 처리 방지       |
+| SUCCESS     | 정상 완료     | 기존 결과 반환       |
+| FAILED      | 처리 실패     | 재시도 정책에 따라 재처리 |
+| COMPENSATED | 보정 완료     | 추가 처리 없음       |
+
+- REQUESTED -> IN_PROGRESS: 외부 API 호출 시작 시
+- IN_PROGRESS -> SUCCESS: 데이터 저장 및 도메인 룰 검증 완료 시
+- IN_PROGRESS -> FAILED: 외부 API 실패, 파싱 오류, 도메인 규칙 위반 시
+- FAILED -> REQUESTED: 재시도 정책에 따라 재처리 시
+- SUCCESS -> COMPENSATED: 운영 보정이 필요할 때
+
+상태 기반 멱등성 + 재시도 정책이 결합되어 동시성 및 재시도 문제 해결
