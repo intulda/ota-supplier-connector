@@ -27,7 +27,7 @@ public class AccommodationDomainService {
         final Accommodation accommodation;
         final boolean accommodationCreated;
 
-        Optional<Accommodation> accommodationOptional = accommodationRepository.findByExternal(dto.getExternalId());
+        Optional<Accommodation> accommodationOptional = accommodationRepository.findByExternal(dto.externalId());
 
         if (accommodationOptional.isPresent()) {
             accommodation =  accommodationOptional.get();
@@ -35,17 +35,17 @@ public class AccommodationDomainService {
         } else {
             accommodationCreated = true;
             accommodation = new Accommodation(
-                    dto.getName(),
-                    dto.getLatitude(),
-                    dto.getLongitude(),
-                    dto.getAddress()
+                    dto.name(),
+                    dto.latitude(),
+                    dto.longitude(),
+                    dto.address()
             );
         }
 
         FindOrCreateResult<AccommodationMapping> mappingResult =
                 accommodationMappingRepository.findOrCreate(
                         supplierType,
-                        dto.getExternalId(),
+                        dto.externalId(),
                         accommodation
                 );
 
@@ -54,7 +54,7 @@ public class AccommodationDomainService {
 
         return ExternalAccommodationSyncResult.success(
                 supplierType,
-                dto.getExternalId(),
+                dto.externalId(),
                 accommodation.getId(),
                 newlyCreated
         );

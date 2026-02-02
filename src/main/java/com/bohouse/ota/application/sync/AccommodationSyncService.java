@@ -50,7 +50,7 @@ public class AccommodationSyncService {
                 failed++;
                 ExternalAccommodationSyncResult.failed(
                         command.getSupplierType(),
-                        externalDto.getExternalId()
+                        externalDto.externalId()
                 );
             }
 
