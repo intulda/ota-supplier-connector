@@ -8,4 +8,6 @@ import java.util.Optional;
 @Repository
 public interface AccommodationRepository {
     Optional<Accommodation> findByExternal(String id);
+
+    Accommodation save(String externalId, Accommodation accommodation);
 }

@@ -40,6 +40,7 @@ public class AccommodationDomainService {
                     dto.longitude(),
                     dto.address()
             );
+            accommodationRepository.save(dto.externalId(), accommodation);
         }
 
         FindOrCreateResult<AccommodationMapping> mappingResult =

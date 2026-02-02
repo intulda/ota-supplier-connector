@@ -41,4 +41,22 @@ public class AccommodationMapping {
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    private AccommodationMapping(
+            SupplierType supplierType,
+            String externalId,
+            Accommodation accommodation
+    ) {
+        this.supplierType = supplierType;
+        this.externalAccommodationId = externalId;
+        this.accommodation = accommodation;
+    }
+
+    public static AccommodationMapping create(
+            SupplierType supplierType,
+            String externalId,
+            Accommodation accommodation
+    ) {
+        return new AccommodationMapping(supplierType, externalId, accommodation);
+    }
 }
