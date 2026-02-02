@@ -48,10 +48,11 @@ public class AccommodationSyncService {
                 }
             } catch (Exception e) {
                 failed++;
-                ExternalAccommodationSyncResult.failed(
+                ExternalAccommodationSyncResult failedResult = ExternalAccommodationSyncResult.failed(
                         command.getSupplierType(),
                         externalDto.externalId()
                 );
+                details.add(failedResult);
             }
 
         }
