@@ -1,4 +1,4 @@
-# ota-spplier-connector
+# ota-supplier-connector
 
 ## 개요
 
