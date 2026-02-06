@@ -5,7 +5,7 @@ import com.bohouse.ota.application.sync.AccommodationDomainService;
 import com.bohouse.ota.domain.fake.FakeAccommodationMappingRepository;
 import com.bohouse.ota.domain.fake.FakeAccommodationRepository;
 import com.bohouse.ota.domain.model.SupplierType;
-import com.bohouse.ota.domain.service.ExternalAccommodationSyncResult;
+import com.bohouse.ota.application.sync.ExternalAccommodationSyncResult;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

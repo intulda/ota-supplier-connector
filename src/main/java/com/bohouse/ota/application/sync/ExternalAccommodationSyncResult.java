@@ -1,4 +1,4 @@
-package com.bohouse.ota.domain.service;
+package com.bohouse.ota.application.sync;
 
 import com.bohouse.ota.domain.model.SupplierType;
 

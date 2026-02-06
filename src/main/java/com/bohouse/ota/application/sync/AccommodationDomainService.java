@@ -7,7 +7,6 @@ import com.bohouse.ota.domain.model.SupplierType;
 import com.bohouse.ota.domain.repository.AccommodationMappingRepository;
 import com.bohouse.ota.domain.repository.AccommodationRepository;
 import com.bohouse.ota.domain.repository.FindOrCreateResult;
-import com.bohouse.ota.domain.service.ExternalAccommodationSyncResult;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

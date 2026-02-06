@@ -4,7 +4,6 @@ import com.bohouse.ota.adapter.outbound.supplier.SupplierAccommodationClient;
 import com.bohouse.ota.adapter.outbound.supplier.SupplierClientRouter;
 import com.bohouse.ota.adapter.outbound.supplier.dto.ExternalAccommodationDto;
 import com.bohouse.ota.domain.model.SupplierType;
-import com.bohouse.ota.domain.service.ExternalAccommodationSyncResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

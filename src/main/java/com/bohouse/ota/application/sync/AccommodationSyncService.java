@@ -3,7 +3,6 @@ package com.bohouse.ota.application.sync;
 import com.bohouse.ota.adapter.outbound.supplier.SupplierAccommodationClient;
 import com.bohouse.ota.adapter.outbound.supplier.SupplierClientRouter;
 import com.bohouse.ota.adapter.outbound.supplier.dto.ExternalAccommodationDto;
-import com.bohouse.ota.domain.service.ExternalAccommodationSyncResult;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
