@@ -22,41 +22,28 @@ public class AccommodationDomainService {
         this.accommodationMappingRepository = accommodationMappingRepository;
     }
 
-    public ExternalAccommodationSyncResult syncFromExternal(SupplierType supplierType, ExternalAccommodationDto dto) {
-        final Accommodation accommodation;
-        final boolean accommodationCreated;
-
-        Optional<Accommodation> accommodationOptional = accommodationRepository.findByExternal(dto.externalId());
-
-        if (accommodationOptional.isPresent()) {
-            accommodation =  accommodationOptional.get();
-            accommodationCreated = false;
-        } else {
-            accommodationCreated = true;
-            accommodation = new Accommodation(
-                    dto.name(),
-                    dto.latitude(),
-                    dto.longitude(),
-                    dto.address()
-            );
-            accommodationRepository.save(dto.externalId(), accommodation);
-        }
-
+    public AccommodationUpsertResult syncFromExternal(SupplierType supplierType, ExternalAccommodationDto dto) {
         FindOrCreateResult<AccommodationMapping> mappingResult =
                 accommodationMappingRepository.findOrCreate(
                         supplierType,
                         dto.externalId(),
-                        accommodation
+                        () -> {
+                            Accommodation accommodation = new Accommodation(
+                                    dto.name(),
+                                    dto.latitude(),
+                                    dto.longitude(),
+                                    dto.address()
+                            );
+                            accommodationRepository.save(dto.externalId(), supplierType, accommodation);
+                            return accommodation;
+                        }
                 );
 
-        boolean newlyCreated =
-                accommodationCreated || mappingResult.isCreated();
+        AccommodationMapping mapping = mappingResult.getEntity();
 
-        return ExternalAccommodationSyncResult.success(
-                supplierType,
-                dto.externalId(),
-                accommodation.getId(),
-                newlyCreated
+        return new AccommodationUpsertResult(
+                mapping.getAccommodation().getId(),
+                mappingResult.isCreated()
         );
     }
 }

@@ -2,6 +2,7 @@ package com.bohouse.ota.domain;
 
 import com.bohouse.ota.adapter.outbound.supplier.dto.ExternalAccommodationDto;
 import com.bohouse.ota.application.sync.AccommodationDomainService;
+import com.bohouse.ota.application.sync.AccommodationUpsertResult;
 import com.bohouse.ota.domain.fake.FakeAccommodationMappingRepository;
 import com.bohouse.ota.domain.fake.FakeAccommodationRepository;
 import com.bohouse.ota.domain.model.SupplierType;
@@ -29,8 +30,8 @@ public class AccommodationDomainServiceTest {
         ExternalAccommodationDto dto =
                 new ExternalAccommodationDto("EXTERNAL_1", "조선호텔", 37.5645, 126.9806, "서울 강남은 테헤란로 231");
 
-        ExternalAccommodationSyncResult first = service.syncFromExternal(SupplierType.EXPEDIA, dto);
-        ExternalAccommodationSyncResult second = service.syncFromExternal(SupplierType.EXPEDIA, dto);
+        AccommodationUpsertResult first = service.syncFromExternal(SupplierType.EXPEDIA, dto);
+        AccommodationUpsertResult second = service.syncFromExternal(SupplierType.EXPEDIA, dto);
 
         assertThat(first.newlyCreated()).isTrue();
         assertThat(second.newlyCreated()).isFalse();

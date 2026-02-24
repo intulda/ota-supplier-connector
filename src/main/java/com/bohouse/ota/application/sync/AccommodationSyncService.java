@@ -32,12 +32,20 @@ public class AccommodationSyncService {
 
         for  (ExternalAccommodationDto externalDto : external) {
             try {
-                ExternalAccommodationSyncResult externalAccommodationSyncResult = domainService.syncFromExternal(command.getSupplierType(), externalDto);
+                AccommodationUpsertResult result = domainService.syncFromExternal(command.getSupplierType(), externalDto);
 
-                details.add(externalAccommodationSyncResult);
+                ExternalAccommodationSyncResult externalResult =
+                        ExternalAccommodationSyncResult.success(
+                                command.getSupplierType(),
+                                externalDto.externalId(),
+                                result.accommodationId(),
+                                result.newlyCreated()
+                        );
 
-                if (externalAccommodationSyncResult.isSuccess()) {
-                    if (externalAccommodationSyncResult.newlyCreated()) {
+                details.add(externalResult);
+
+                if (externalResult.isSuccess()) {
+                    if (externalResult.newlyCreated()) {
                         created++;
                     } else {
                         reused++;

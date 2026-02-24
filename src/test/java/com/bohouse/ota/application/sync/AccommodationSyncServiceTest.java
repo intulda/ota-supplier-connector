@@ -42,12 +42,7 @@ class AccommodationSyncServiceTest {
         when(supplierClient.fetch()).thenReturn(List.of(dto, dto2));
 
         when(domainService.syncFromExternal(supplierType, dto))
-                .thenReturn(ExternalAccommodationSyncResult.success(
-                        supplierType,
-                        dto.externalId(),
-                        1L,
-                        true
-                ));
+                .thenReturn(new AccommodationUpsertResult(1L, true));
 
         when(domainService.syncFromExternal(supplierType, dto2))
                 .thenThrow(new RuntimeException("force error test"));

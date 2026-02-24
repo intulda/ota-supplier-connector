@@ -1,6 +1,7 @@
 package com.bohouse.ota.domain.fake;
 
 import com.bohouse.ota.domain.model.Accommodation;
+import com.bohouse.ota.domain.model.SupplierType;
 import com.bohouse.ota.domain.repository.AccommodationRepository;
 
 import java.util.HashMap;
@@ -12,13 +13,13 @@ public class FakeAccommodationRepository implements AccommodationRepository {
     private final Map<String, Accommodation> store = new HashMap<>();
 
     @Override
-    public Optional<Accommodation> findByExternal(String externalId) {
-        return Optional.ofNullable(store.get(externalId));
+    public Optional<Accommodation> findByExternal(String externalId, SupplierType supplierType) {
+        return Optional.ofNullable(store.get(externalId + "-" + supplierType.name()));
     }
 
     @Override
-    public Accommodation save(String externalId, Accommodation accommodation) {
-        store.put(externalId, accommodation);
+    public Accommodation save(String externalId, SupplierType supplierType, Accommodation accommodation) {
+        store.put(externalId + "-" + supplierType.name(), accommodation);
         return accommodation;
     }
 }
