@@ -8,7 +8,6 @@ import com.bohouse.ota.domain.repository.FindOrCreateResult;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 public class FakeAccommodationMappingRepository implements AccommodationMappingRepository {
@@ -33,11 +32,6 @@ public class FakeAccommodationMappingRepository implements AccommodationMappingR
         mappings.put(key, mapping);
 
         return new FindOrCreateResult<>(mapping, true);
-    }
-
-    @Override
-    public Optional<AccommodationMapping> findBy(String externalId, SupplierType supplierType) {
-        return Optional.empty();
     }
 
     public void forceError(boolean error) {
