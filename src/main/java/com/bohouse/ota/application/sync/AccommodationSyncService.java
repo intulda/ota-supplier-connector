@@ -3,6 +3,8 @@ package com.bohouse.ota.application.sync;
 import com.bohouse.ota.adapter.outbound.supplier.SupplierAccommodationClient;
 import com.bohouse.ota.adapter.outbound.supplier.SupplierClientRouter;
 import com.bohouse.ota.adapter.outbound.supplier.dto.ExternalAccommodationDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -13,6 +15,8 @@ public class AccommodationSyncService {
 
     private final SupplierClientRouter router;
     private final AccommodationDomainService domainService;
+
+    private final Logger log = LoggerFactory.getLogger(AccommodationSyncService.class);
 
     public AccommodationSyncService(SupplierClientRouter router, AccommodationDomainService domainService) {
         this.router = router;
@@ -60,6 +64,8 @@ public class AccommodationSyncService {
                         externalDto.externalId()
                 );
                 details.add(failedResult);
+
+                log.error("[SUPPLIER={}][STEP=FETCH][RESULT=FAILED][REASON={}]", command.supplierType(), e.getMessage(), e);
             }
 
         }
