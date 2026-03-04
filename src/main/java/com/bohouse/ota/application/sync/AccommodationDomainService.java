@@ -9,8 +9,6 @@ import com.bohouse.ota.domain.repository.AccommodationRepository;
 import com.bohouse.ota.domain.repository.FindOrCreateResult;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class AccommodationDomainService {
 
@@ -39,11 +37,11 @@ public class AccommodationDomainService {
                         }
                 );
 
-        AccommodationMapping mapping = mappingResult.getEntity();
+        AccommodationMapping mapping = mappingResult.entity();
 
         return new AccommodationUpsertResult(
                 mapping.getAccommodation().getId(),
-                mappingResult.isCreated()
+                mappingResult.created()
         );
     }
 }
