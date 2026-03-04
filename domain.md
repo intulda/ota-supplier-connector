@@ -240,8 +240,8 @@ Supplier가 정의한 숙소의 고유 식별자이다.
 상태 기반 멱등성 + 재시도 정책이 결합되어 동시성 및 재시도 문제 해결
 
 ### 11. Package Overview
-application/sync  : 유스케이스(집계, 실패 변환)
-domain/model      : 엔티티/값
-domain/service    : 멱등성 규칙
-domain/repository : 포트(Repository 인터페이스)
-adapter/outbound  : 외부 연동(공급사 client, dto)
+- application/sync  : 유스케이스(집계, 실패 변환)
+- domain/model      : 엔티티/값
+- domain/service    : 멱등성 규칙
+- domain/repository : 포트(Repository 인터페이스)
+- adapter/outbound  : 외부 연동(공급사 client, dto)
