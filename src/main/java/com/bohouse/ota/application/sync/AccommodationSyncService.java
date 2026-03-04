@@ -21,7 +21,7 @@ public class AccommodationSyncService {
 
     public AccommodationSyncResult sync(AccommodationSyncCommand command) {
 
-        SupplierAccommodationClient supplier = router.get(command.getSupplierType());
+        SupplierAccommodationClient supplier = router.get(command.supplierType());
         List<ExternalAccommodationDto> external = supplier.fetch();
 
         int created = 0;
@@ -32,11 +32,11 @@ public class AccommodationSyncService {
 
         for  (ExternalAccommodationDto externalDto : external) {
             try {
-                AccommodationUpsertResult result = domainService.syncFromExternal(command.getSupplierType(), externalDto);
+                AccommodationUpsertResult result = domainService.syncFromExternal(command.supplierType(), externalDto);
 
                 ExternalAccommodationSyncResult externalResult =
                         ExternalAccommodationSyncResult.success(
-                                command.getSupplierType(),
+                                command.supplierType(),
                                 externalDto.externalId(),
                                 result.accommodationId(),
                                 result.newlyCreated()
@@ -56,7 +56,7 @@ public class AccommodationSyncService {
             } catch (Exception e) {
                 failed++;
                 ExternalAccommodationSyncResult failedResult = ExternalAccommodationSyncResult.failed(
-                        command.getSupplierType(),
+                        command.supplierType(),
                         externalDto.externalId()
                 );
                 details.add(failedResult);
@@ -65,7 +65,7 @@ public class AccommodationSyncService {
         }
 
         return new AccommodationSyncResult(
-                command.getSupplierType(),
+                command.supplierType(),
                 external.size(),
                 created,
                 reused,

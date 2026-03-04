@@ -1,14 +1,12 @@
 package com.bohouse.ota.application.sync;
 
 import com.bohouse.ota.domain.model.SupplierType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 import java.util.List;
 
-@Getter
-@AllArgsConstructor
-public class AccommodationSyncCommand {
-    private final SupplierType supplierType;   // EXPEDIA, BOOKING 등
-    private final List<String> externalAccommodationIds; // 외부 숙소 ID들
+/**
+ * @param supplierType             EXPEDIA, BOOKING 등
+ * @param externalAccommodationIds 외부 숙소 ID들
+ */
+public record AccommodationSyncCommand(SupplierType supplierType, List<String> externalAccommodationIds) {
 }
