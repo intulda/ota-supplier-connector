@@ -87,3 +87,11 @@ log.error("API failed");
 비즈니스 규칙에 따른 판단은 Application 레이어에서 수행하고, DB는 최종적인 데이터 정합성을 보장하는 역할로 제한했습니다.
 DB 제약만으로 중복을 제어할 경우 예외 기반 흐름이 증가하고 원인 파악이 어려워질 수 있기 때문에, Application 단계에서 먼저 멱등성을 판단하여 정상 흐름으로 처리하도록 설계했습니다.
 DB의 Unique 제약은 예외적인 경쟁 상황에서 데이터 무결성을 보장하는 최종 방어선으로 사용했습니다.
+
+## Sync Flow
+
+1. Supplier API에서 숙소 데이터 조회
+2. 외부 DTO를 Domain Model로 변환
+3. (SupplierType, ExternalId) 기준으로 기존 데이터 조회
+4. 멱등성 규칙 적용 후 upsert
+5. Sync 결과 로깅
